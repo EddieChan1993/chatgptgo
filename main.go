@@ -12,8 +12,8 @@ import (
 func main() {
 	goRuntime.InitGoRuntime()
 	gpt.InitGpt()
-	//core.InitConsole()
-	core.InitWxChat()
+	core.InitConsole()
+	//core.InitWxChat()
 	waitExit()
 }
 

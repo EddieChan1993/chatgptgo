@@ -70,6 +70,7 @@ func (w *wxChat) listMsg() func(msg *openwechat.Message) {
 				//log.Fatalf("ReplyText Err %v\n", err)
 				//}
 			})
+
 		}
 	}
 }

@@ -2,6 +2,7 @@ package gpt
 
 import (
 	"context"
+	_ "embed"
 	"errors"
 	gogpt "github.com/sashabaranov/go-gpt3"
 	"io"
@@ -9,7 +10,8 @@ import (
 	"strings"
 )
 
-const token = "sk-"
+//go:embed token
+var token string
 
 type gpt struct {
 	client *gogpt.Client
