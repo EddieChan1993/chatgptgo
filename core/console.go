@@ -22,6 +22,8 @@ func InitConsole() {
 				}
 				resp := gpt.GptApi.AskGptStream(ask)
 				fmt.Printf("robotAI:%s\n", resp)
+				ask = ""
+				fmt.Println("-----------------------")
 			}
 		}
 	})
