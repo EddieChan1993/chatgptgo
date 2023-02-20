@@ -42,8 +42,8 @@ func (g *gpt) AskGpt(content string) string {
 		MaxTokens:        1000,
 		TopP:             1,
 		FrequencyPenalty: 0,
-		PresencePenalty:  0,
-		BestOf:           1,
+		PresencePenalty:  0.6,
+		Stop:             []string{"Human:", " AI:"},
 		Prompt:           content,
 	}
 	resp, err := g.client.CreateCompletion(g.ctx, req)
