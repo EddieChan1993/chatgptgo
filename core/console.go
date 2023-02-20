@@ -29,7 +29,11 @@ func InitConsole() {
 				resp := gpt.GptApi.AskGpt(builderAsk.String())
 				answer := strings.TrimSpace(resp)
 				fmt.Printf("%s\n", answer)
-				builderAsk.WriteString("\nAI:" + answer)
+				if !strings.HasPrefix(answer, "AI:") {
+					builderAsk.WriteString("\nAI:" + answer)
+				} else {
+					builderAsk.WriteString("\n" + answer)
+				}
 				ask = ""
 				fmt.Println("-----------------------")
 			}
