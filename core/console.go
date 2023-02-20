@@ -23,11 +23,12 @@ func InitConsole() {
 				if ask == "" {
 					continue
 				}
+				ask = strings.TrimSpace(ask)
 				builderAsk.WriteString("\nHuman:" + ask)
 				//fmt.Printf("问题:%s\n", builderAsk.String())
 				resp := gpt.GptApi.AskGpt(builderAsk.String())
 				answer := strings.TrimSpace(resp)
-				fmt.Printf("%s\n", strings.TrimSpace(resp))
+				fmt.Printf("%s\n", answer)
 				builderAsk.WriteString("\nAI:" + answer)
 				ask = ""
 				fmt.Println("-----------------------")
