@@ -28,8 +28,9 @@ func InitConsole() {
 				//fmt.Printf("问题:%s\n", builderAsk.String())
 				resp := gpt.GptApi.AskGpt(builderAsk.String())
 				answer := strings.TrimSpace(resp)
+				answer = strings.Trim(answer, "\n")
 				fmt.Printf("%s\n", answer)
-				if !strings.HasPrefix(answer, "AI:") {
+				if strings.Index(answer, "AI:") == -1 {
 					builderAsk.WriteString("\nAI:" + answer)
 				} else {
 					builderAsk.WriteString("\n" + answer)
