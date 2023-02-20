@@ -43,7 +43,7 @@ func (g *gpt) AskGpt(content string) string {
 		TopP:             1,
 		FrequencyPenalty: 0,
 		PresencePenalty:  0.6,
-		Stop:             []string{"Human:", " AI:"},
+		Stop:             []string{"Human:", " AI:"}, //连续发问的标志词
 		Prompt:           content,
 	}
 	resp, err := g.client.CreateCompletion(g.ctx, req)
