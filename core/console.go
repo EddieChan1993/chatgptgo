@@ -24,7 +24,7 @@ func InitConsole() {
 					continue
 				}
 				ask = strings.TrimSpace(ask)
-				builderAsk.WriteString("Human:" + ask)
+				builderAsk.WriteString("\nHuman:" + ask)
 				//fmt.Printf("问题:%s\n", builderAsk.String())
 				resp := gpt.GptApi.AskGpt(ask)
 				answer := strings.TrimSpace(resp)
