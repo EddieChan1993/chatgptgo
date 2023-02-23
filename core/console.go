@@ -17,19 +17,18 @@ func InitConsole() {
 				builderAsk.Reset()
 				return
 			default:
-				fmt.Println("输入问题?")
+				fmt.Print("我:")
 				ask := ""
 				fmt.Scanf("%s", &ask)
 				if ask == "" {
 					continue
 				}
-				ask = strings.TrimSpace(ask)
 				builderAsk.WriteString("\nHuman:" + ask)
 				//fmt.Printf("问题:%s\n", builderAsk.String())
-				resp := gpt.GptApi.AskGpt(ask)
+				resp := gpt.GptApi.AskGpt(builderAsk.String())
 				answer := strings.TrimSpace(resp)
+				fmt.Printf("%s\n", strings.TrimSpace(resp))
 				builderAsk.WriteString("\nAI:" + answer)
-				fmt.Printf("%s\n", answer)
 				ask = ""
 				fmt.Println("-----------------------")
 			}
