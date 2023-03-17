@@ -9,10 +9,15 @@ import (
 	"syscall"
 )
 
+func init() {
+	yeheiTTF := "./font/yahe3i.ttf"
+	os.Setenv("FYNE_FONT", yeheiTTF)
+}
 func main() {
 	goRuntime.InitGoRuntime()
 	gpt.InitGpt()
-	core.InitConsole()
+	core.InitGui()
+	//core.InitConsole()
 	//core.InitWxChat()
 	waitExit()
 }

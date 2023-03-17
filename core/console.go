@@ -8,8 +8,9 @@ import (
 	"strings"
 )
 
+var builderAsk strings.Builder
+
 func InitConsole() {
-	var builderAsk strings.Builder
 	goRuntime.GoRun(func(ctx context.Context) {
 		for {
 			select {
@@ -23,19 +24,9 @@ func InitConsole() {
 				if ask == "" {
 					continue
 				}
-				ask = strings.TrimSpace(ask)
-				builderAsk.WriteString("\nHuman:" + ask)
-				//fmt.Printf("问题:%s\n", builderAsk.String())
-				resp := gpt.GptApi.AskGpt(builderAsk.String())
-				answer := strings.TrimSpace(resp)
-				answer = strings.Trim(answer, "\n")
+				msg := gpt.GetAskContent(ask)
+				answer := gpt.GptApi.AskGpt(msg)
 				fmt.Printf("%s\n", answer)
-				if strings.Index(answer, "AI:") == -1 {
-					builderAsk.WriteString("\nAI:" + answer)
-				} else {
-					builderAsk.WriteString("\n" + answer)
-				}
-				ask = ""
 				fmt.Println("-----------------------")
 			}
 		}

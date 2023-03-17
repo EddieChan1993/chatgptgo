@@ -4,14 +4,17 @@ import (
 	"context"
 	_ "embed"
 	"errors"
+	"fmt"
 	gogpt "github.com/sashabaranov/go-gpt3"
 	"io"
-	"log"
 	"strings"
 )
 
 //go:embed token
 var token string
+var builderAsk strings.Builder
+
+const Ai = "AI:"
 
 type gpt struct {
 	client *gogpt.Client
@@ -43,14 +46,27 @@ func (g *gpt) AskGpt(content string) string {
 		TopP:             1,
 		FrequencyPenalty: 0,
 		PresencePenalty:  0.6,
-		Stop:             []string{"Human:", " AI:"}, //连续发问的标志词
+		Stop:             []string{"Human:", " " + Ai}, //连续发问的标志词
 		Prompt:           content,
 	}
 	resp, err := g.client.CreateCompletion(g.ctx, req)
 	if err != nil {
+		fmt.Printf("CreateCompletion %v", err)
 		return ""
 	}
-	return resp.Choices[0].Text
+	data := resp.Choices[0].Text
+	answer := strings.TrimSpace(data)
+	answer = strings.Trim(answer, "\n")
+	answer = strings.Trim(answer, "Bot:")
+	answer = strings.Trim(answer, "Robot:")
+	answer = strings.Trim(answer, "Computer:")
+	if strings.Index(answer, Ai) == -1 {
+		builderAsk.WriteString("\n" + Ai + answer)
+		answer = Ai + answer
+	} else {
+		builderAsk.WriteString("\n" + answer)
+	}
+	return answer
 }
 
 func (g *gpt) AskGptStream(content string) string {
@@ -67,7 +83,7 @@ func (g *gpt) AskGptStream(content string) string {
 	}
 	stream, err := g.client.CreateCompletionStream(g.ctx, req)
 	if err != nil {
-		log.Fatalf("CreateCompletionStream Err %v\n", err)
+		fmt.Printf("CreateCompletionStream Err %v\n", err)
 		return ""
 	}
 	defer stream.Close()
@@ -78,7 +94,7 @@ func (g *gpt) AskGptStream(content string) string {
 			break
 		}
 		if err != nil {
-			log.Fatalf("Stream Err %v\n", err)
+			fmt.Printf("Stream Err %v\n", err)
 		}
 		if len(response.Choices) != 0 {
 			_, _ = builder.WriteString(response.Choices[0].Text)
@@ -86,4 +102,10 @@ func (g *gpt) AskGptStream(content string) string {
 		//fmt.Printf("Stream response: %v\n", response)
 	}
 	return strings.TrimSpace(builder.String())
+}
+
+func GetAskContent(ask string) string {
+	ask = strings.TrimSpace(ask)
+	builderAsk.WriteString("\nHuman:" + ask)
+	return builderAsk.String()
 }
