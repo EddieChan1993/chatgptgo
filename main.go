@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	yeheiTTF := "./font/yahe3i.ttf"
+	yeheiTTF := "./font/yahei.ttf"
 	os.Setenv("FYNE_FONT", yeheiTTF)
 }
 func main() {
