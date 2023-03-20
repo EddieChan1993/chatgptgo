@@ -15,15 +15,16 @@ func InitGui() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("GPT Chat")
 	//内容展示
-	label := widget.NewRichTextFromMarkdown("")
+	label := widget.NewMultiLineEntry()
 	label.Wrapping = fyne.TextWrapWord //文字自动换行
-	label.Scroll = container.ScrollVerticalOnly
+	//label.Scroll = container.ScrollVerticalOnly
 	//输入input
 	input := widget.NewEntry()
 	input.SetPlaceHolder("输入问题")
 	//清空按钮
 	clearBtn := widget.NewButton("清空", func() {
-		label.ParseMarkdown("")
+		label.SetText("")
+		label.Refresh()
 		msg.Reset()
 	})
 	//提交按钮
@@ -34,12 +35,12 @@ func InitGui() {
 			//第一次
 			msg.WriteString(ask)
 		} else {
-			msg.WriteString("\n\n" + ask)
+			msg.WriteString("\n" + ask)
 		}
-		label.ParseMarkdown(msg.String())
+		label.SetText(msg.String() + "\n---正在思考...---")
 		answer := gpt.GptApi.AskGpt(gpt.GetAskContent(ask))
-		msg.WriteString("\n\n" + answer)
-		label.ParseMarkdown(msg.String())
+		msg.WriteString("\n" + answer)
+		label.SetText(msg.String())
 	})
 	//布局
 	btnBorders := container.NewBorder(nil, nil, clearBtn, nil, subBtn)
