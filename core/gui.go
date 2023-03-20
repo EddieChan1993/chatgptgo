@@ -6,32 +6,40 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	"strings"
 )
+
+var msg strings.Builder
 
 func InitGui() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("GPT Chat")
 	//内容展示
-	label := widget.NewLabel("")
+	label := widget.NewRichTextFromMarkdown("")
 	label.Wrapping = fyne.TextWrapWord //文字自动换行
+	label.Scroll = container.ScrollVerticalOnly
 	//输入input
 	input := widget.NewEntry()
 	input.SetPlaceHolder("输入问题")
 	//清空按钮
 	clearBtn := widget.NewButton("清空", func() {
-		label.SetText("")
+		label.ParseMarkdown("")
+		msg.Reset()
 	})
 	//提交按钮
 	subBtn := widget.NewButton("提交", func() {
 		ask := "我:" + input.Text
-		if label.Text == "" {
+		oldContent := msg.String()
+		if oldContent == "" {
 			//第一次
-			label.SetText(ask)
+			msg.WriteString(ask)
 		} else {
-			label.SetText(label.Text + "\n----------------------\n" + ask)
+			msg.WriteString("\n\n" + ask)
 		}
+		label.ParseMarkdown(msg.String())
 		answer := gpt.GptApi.AskGpt(gpt.GetAskContent(ask))
-		label.SetText(label.Text + "\n" + answer)
+		msg.WriteString("\n\n" + answer)
+		label.ParseMarkdown(msg.String())
 	})
 	//布局
 	btnBorders := container.NewBorder(nil, nil, clearBtn, nil, subBtn)

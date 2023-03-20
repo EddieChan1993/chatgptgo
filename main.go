@@ -19,7 +19,6 @@ func main() {
 	core.InitGui()
 	//core.InitConsole()
 	//core.InitWxChat()
-	waitExit()
 }
 
 func waitExit() {
