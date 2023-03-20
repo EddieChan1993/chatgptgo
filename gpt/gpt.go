@@ -110,3 +110,7 @@ func GetAskContent(ask string) string {
 	builderAsk.WriteString("\nHuman:" + ask)
 	return builderAsk.String()
 }
+
+func ClearAsk() {
+	builderAsk.Reset()
+}

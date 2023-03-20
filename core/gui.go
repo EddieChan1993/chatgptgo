@@ -25,23 +25,26 @@ func InitGui() {
 	clearBtn := widget.NewButton("清空", func() {
 		label.SetText("")
 		label.Refresh()
+		gpt.ClearAsk()
 		msg.Reset()
 	})
 	//提交按钮
 	subBtn := widget.NewButton("提交", func() {
-		ask := "我:" + input.Text
-		oldContent := msg.String()
-		if oldContent == "" {
-			//第一次
-			msg.WriteString(ask)
-		} else {
-			msg.WriteString("\n" + ask)
-		}
-		label.SetText(msg.String() + "\n   ....正在思考....")
-		answer := gpt.GptApi.AskGpt(gpt.GetAskContent(ask))
-		msg.WriteString("\n" + answer)
-		msg.WriteString("\n---------------------------------------------------------")
-		label.SetText(msg.String())
+		go func() {
+			ask := "我:" + input.Text
+			oldContent := msg.String()
+			if oldContent == "" {
+				//第一次
+				msg.WriteString(ask)
+			} else {
+				msg.WriteString("\n" + ask)
+			}
+			label.SetText(msg.String() + "\n   ....正在思考....")
+			answer := gpt.GptApi.AskGpt(gpt.GetAskContent(ask))
+			msg.WriteString("\n" + answer)
+			msg.WriteString("\n---------------------------------------------------------")
+			label.SetText(msg.String())
+		}()
 	})
 	//布局
 	btnBorders := container.NewBorder(nil, nil, clearBtn, nil, subBtn)
