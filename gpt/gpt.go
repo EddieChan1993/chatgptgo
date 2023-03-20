@@ -60,6 +60,7 @@ func (g *gpt) AskGpt(content string) string {
 	answer = strings.Trim(answer, "Bot:")
 	answer = strings.Trim(answer, "Robot:")
 	answer = strings.Trim(answer, "Computer:")
+	answer = strings.Trim(answer, "回答：")
 	if strings.Index(answer, Ai) == -1 {
 		builderAsk.WriteString("\n" + Ai + answer)
 		answer = Ai + answer
