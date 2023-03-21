@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	gogpt "github.com/sashabaranov/go-gpt3"
+	"github.com/sashabaranov/go-openai"
 	"io"
 	"strings"
 )
@@ -17,8 +18,9 @@ var builderAsk strings.Builder
 const Ai = "AI:"
 
 type gpt struct {
-	client *gogpt.Client
-	ctx    context.Context
+	client       *gogpt.Client
+	ctx          context.Context
+	openAiClient *openai.Client
 }
 
 var GptApi IGptApi
@@ -31,32 +33,40 @@ type IGptApi interface {
 func InitGpt() {
 	c := gogpt.NewClient(token)
 	ctx := context.Background()
-
+	openAiClient := openai.NewClient(token)
 	GptApi = &gpt{
-		client: c,
-		ctx:    ctx,
+		client:       c,
+		ctx:          ctx,
+		openAiClient: openAiClient,
 	}
 }
 
 func (g *gpt) AskGpt(content string) string {
-	req := gogpt.CompletionRequest{
-		Model:            gogpt.GPT3TextDavinci003,
-		Temperature:      0,
-		MaxTokens:        1000,
-		TopP:             1,
-		FrequencyPenalty: 0,
-		PresencePenalty:  0.6,
-		Stop:             []string{"Human:", " " + Ai}, //连续发问的标志词
-		Prompt:           content,
-	}
-	resp, err := g.client.CreateCompletion(g.ctx, req)
+	resp, err := g.openAiClient.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model: openai.GPT3Dot5Turbo0301,
+			Stop:  []string{"Human:", " " + Ai}, //连续发问的标志词
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: content,
+				},
+			},
+		},
+	)
 	if err != nil {
-		fmt.Printf("CreateCompletion %v", err)
+		fmt.Printf("ChatCompletion error: %v\n", err)
 		return ""
 	}
-	data := resp.Choices[0].Text
-	answer := strings.TrimSpace(data)
+	data := resp.Choices[0].Message.Content
+	return g.filedContent(data)
+}
+
+func (g *gpt) filedContent(content string) string {
+	answer := strings.TrimSpace(content)
 	answer = strings.Trim(answer, "\n")
+	answer = strings.TrimSpace(answer)
 	answer = strings.Trim(answer, "Bot:")
 	answer = strings.Trim(answer, "Robot:")
 	answer = strings.Trim(answer, "Computer:")
