@@ -42,7 +42,7 @@ func (this_ *gui) show() {
 	myWindow := this_.app.NewWindow("GPT Chat")
 	//内容展示
 	label := widget.NewMultiLineEntry()
-	label.Wrapping = fyne.TextWrapWord //文字自动换行
+	label.Wrapping = fyne.TextWrapBreak //文字自动换行
 	//输入input
 	input := widget.NewEntry()
 	input.SetPlaceHolder("输入问题/图片内容描述")
@@ -63,6 +63,7 @@ func (this_ *gui) show() {
 			} else {
 				this_.msg.WriteString("\n" + ask)
 			}
+			label.SetText(this_.msg.String())
 			this_.infinite.Show()
 			answer := openai.AskGpt(openai.GetAskContent(ask))
 			this_.msg.WriteString("\n" + answer)
