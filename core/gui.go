@@ -11,47 +11,72 @@ import (
 	"strings"
 )
 
-var msg strings.Builder
+type gui struct {
+	infinite                *widget.ProgressBarInfinite
+	createImgBtn, submitBtn *widget.Button
+	msg                     *strings.Builder
+	app                     fyne.App
+}
 
 func InitGui() {
+	//图片生成条
 	myApp := app.New()
-	myWindow := myApp.NewWindow("GPT Chat")
+	infinite := widget.NewProgressBarInfinite()
+	infinite.Hidden = true
+	//提交按钮
+	subBtn := widget.NewButton("提交问题", nil)
+	//生成图片按钮
+	createBtn := widget.NewButton("AI图片生成", nil)
+	ins := &gui{
+		infinite:     infinite,
+		createImgBtn: createBtn,
+		submitBtn:    subBtn,
+		msg:          &strings.Builder{},
+		app:          myApp,
+	}
+	ins.isLockBtn()
+	ins.show()
+}
+
+func (this_ *gui) show() {
+	myWindow := this_.app.NewWindow("GPT Chat")
 	//内容展示
 	label := widget.NewMultiLineEntry()
 	label.Wrapping = fyne.TextWrapWord //文字自动换行
 	//输入input
 	input := widget.NewEntry()
-	input.SetPlaceHolder("输入问题")
+	input.SetPlaceHolder("输入问题/图片内容描述")
 	//清空按钮
 	clearBtn := widget.NewButton("清空", func() {
 		label.SetText("")
 		label.Refresh()
 		openai.ClearAsk()
-		msg.Reset()
+		this_.msg.Reset()
 	})
-	//提交按钮
-	subBtn := widget.NewButton("提交", func() {
+	this_.submitBtn.OnTapped = func() {
 		go func() {
 			ask := "我:" + input.Text
-			oldContent := msg.String()
+			oldContent := this_.msg.String()
 			if oldContent == "" {
 				//第一次
-				msg.WriteString(ask)
+				this_.msg.WriteString(ask)
 			} else {
-				msg.WriteString("\n" + ask)
+				this_.msg.WriteString("\n" + ask)
 			}
-			label.SetText(msg.String() + "\n   ....正在思考....")
+			this_.infinite.Show()
 			answer := openai.AskGpt(openai.GetAskContent(ask))
-			msg.WriteString("\n" + answer)
-			msg.WriteString("\n---------------------------------------------------------")
-			label.SetText(msg.String())
+			this_.msg.WriteString("\n" + answer)
+			this_.msg.WriteString("\n---------------------------------------------------------")
+			this_.infinite.Hide()
+			label.SetText(this_.msg.String())
 		}()
-	})
-	createBtn := widget.NewButton("生成图片", func() {
+	}
+	this_.createImgBtn.OnTapped = func() {
 		if input.Text == "" {
 			return
 		}
 		go func() {
+			this_.infinite.Show()
 			imageUrl := openai.CreateImgUrl(input.Text)
 			if imageUrl == "" {
 				return
@@ -62,17 +87,32 @@ func InitGui() {
 			w.SetContent(canvas.NewImageFromURI(url))
 			w.Resize(fyne.NewSize(500, 500))
 			//w.SetFixedSize(true)
+			this_.infinite.Hide()
 			w.Show()
 		}()
-	})
+	}
 	//布局
-	btnBorders := container.NewBorder(nil, nil, clearBtn, createBtn, subBtn)
+	btnBorders := container.NewBorder(nil, nil, clearBtn, this_.createImgBtn, this_.submitBtn)
 	content := container.NewVBox(input, btnBorders)
-	border := container.NewBorder(content, nil, nil, nil, label)
+	border := container.NewBorder(content, this_.infinite, nil, nil, label)
 
 	myWindow.SetContent(border)
 	myWindow.Resize(fyne.NewSize(600, 600))
 	myWindow.SetFixedSize(true)
 	myWindow.Show()
-	myApp.Run()
+	this_.app.Run()
+}
+
+func (this_ *gui) isLockBtn() {
+	go func() {
+		for {
+			if this_.infinite.Visible() == false {
+				this_.createImgBtn.Enable()
+				this_.submitBtn.Enable()
+			} else {
+				this_.createImgBtn.Disable()
+				this_.submitBtn.Disable()
+			}
+		}
+	}()
 }
