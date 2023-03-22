@@ -1,7 +1,6 @@
 package core
 
 import (
-	"chatgptgo/gpt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -25,7 +24,7 @@ func InitGui() {
 	clearBtn := widget.NewButton("清空", func() {
 		label.SetText("")
 		label.Refresh()
-		gpt.ClearAsk()
+		openai.ClearAsk()
 		msg.Reset()
 	})
 	//提交按钮
@@ -40,7 +39,7 @@ func InitGui() {
 				msg.WriteString("\n" + ask)
 			}
 			label.SetText(msg.String() + "\n   ....正在思考....")
-			answer := gpt.AskGpt(gpt.GetAskContent(ask))
+			answer := openai.AskGpt(openai.GetAskContent(ask))
 			msg.WriteString("\n" + answer)
 			msg.WriteString("\n---------------------------------------------------------")
 			label.SetText(msg.String())

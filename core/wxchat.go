@@ -1,7 +1,6 @@
 package core
 
 import (
-	"chatgptgo/gpt"
 	goRuntime "chatgptgo/util"
 	"context"
 	"fmt"
@@ -63,7 +62,7 @@ func (w *wxChat) listMsg() func(msg *openwechat.Message) {
 			content := strings.TrimSpace(msg.Content)
 			fmt.Println("msg", content)
 			goRuntime.GoRun(func(ctx context.Context) {
-				resp := gpt.GptApi.AskGptStream(content)
+				resp := openai.GptApi.AskGptStream(content)
 				//_, err := msg.ReplyText(resp)
 				fmt.Println("AIBOT:", resp)
 				//if err != nil {
