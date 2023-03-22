@@ -1,6 +1,7 @@
 package core
 
 import (
+	"chatgptgo/openai"
 	goRuntime "chatgptgo/util"
 	"context"
 	"fmt"
@@ -24,7 +25,7 @@ func InitConsole() {
 					continue
 				}
 				msg := openai.GetAskContent(ask)
-				answer := openai.GptApi.AskGpt(msg)
+				answer := openai.AskGpt(msg)
 				fmt.Printf("%s\n", answer)
 				fmt.Println("-----------------------")
 			}
