@@ -4,7 +4,9 @@ import (
 	"chatgptgo/openai"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 	"strings"
 )
@@ -17,7 +19,6 @@ func InitGui() {
 	//内容展示
 	label := widget.NewMultiLineEntry()
 	label.Wrapping = fyne.TextWrapWord //文字自动换行
-	//label.Scroll = container.ScrollVerticalOnly
 	//输入input
 	input := widget.NewEntry()
 	input.SetPlaceHolder("输入问题")
@@ -46,13 +47,33 @@ func InitGui() {
 			label.SetText(msg.String())
 		}()
 	})
+	createBtn := widget.NewButton("生成图片", func() {
+		if input.Text == "" {
+			return
+		}
+		go func() {
+			imageUrl := openai.CreateImgUrl(input.Text)
+			if imageUrl == "" {
+				return
+			}
+			url, _ := storage.ParseURI(imageUrl)
+			w := fyne.CurrentApp().NewWindow("图片")
+			card2 := widget.NewCard("", input.Text, nil)
+			card2.Image = canvas.NewImageFromURI(url)
+			w.SetContent(container.NewCenter(card2))
+			w.Resize(fyne.NewSize(300, 300))
+			w.SetFixedSize(true)
+			w.Show()
+		}()
+	})
 	//布局
-	btnBorders := container.NewBorder(nil, nil, clearBtn, nil, subBtn)
+	btnBorders := container.NewBorder(nil, nil, clearBtn, createBtn, subBtn)
 	content := container.NewVBox(input, btnBorders)
 	border := container.NewBorder(content, nil, nil, nil, label)
 
 	myWindow.SetContent(border)
 	myWindow.Resize(fyne.NewSize(600, 600))
+	myWindow.SetFixedSize(true)
 	myWindow.Show()
 	myApp.Run()
 }

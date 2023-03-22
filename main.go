@@ -1,6 +1,7 @@
 package main
 
 import (
+	"chatgptgo/core"
 	"chatgptgo/openai"
 	goRuntime "chatgptgo/util"
 	"os"
@@ -16,8 +17,8 @@ func init() {
 func main() {
 	goRuntime.InitGoRuntime()
 	openai.InitOpenAi()
-	openai.CreateImgUrl("海边的落日，eric clapton站在悬崖边上，弹奏着fender电吉他，画面风格是梵高风格")
-	//core.InitGui()
+	//openai.CreateImgUrl("海边的落日，eric clapton站在悬崖边上，弹奏着fender电吉他，画面风格是梵高风格")
+	core.InitGui()
 	//core.InitConsole()
 	//core.InitWxChat()
 }
