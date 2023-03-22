@@ -17,32 +17,8 @@ var builderAsk strings.Builder
 
 const Ai = "AI:"
 
-type gpt struct {
-	client       *gogpt.Client
-	ctx          context.Context
-	openAiClient *openai.Client
-}
-
-var GptApi IGptApi
-
-type IGptApi interface {
-	AskGpt(content string) string
-	AskGptStream(content string) string
-}
-
-func InitGpt() {
-	c := gogpt.NewClient(token)
-	ctx := context.Background()
-	openAiClient := openai.NewClient(token)
-	GptApi = &gpt{
-		client:       c,
-		ctx:          ctx,
-		openAiClient: openAiClient,
-	}
-}
-
-func (g *gpt) AskGpt(content string) string {
-	resp, err := g.openAiClient.CreateChatCompletion(
+func AskGpt(content string) string {
+	resp, err := openAiIns.openAiClient.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
 			Model: openai.GPT3Dot5Turbo0301,
@@ -60,10 +36,10 @@ func (g *gpt) AskGpt(content string) string {
 		return ""
 	}
 	data := resp.Choices[0].Message.Content
-	return g.filedContent(data)
+	return filedContent(data)
 }
 
-func (g *gpt) filedContent(content string) string {
+func filedContent(content string) string {
 	answer := strings.TrimSpace(content)
 	answer = strings.Trim(answer, "\n")
 	answer = strings.TrimSpace(answer)
@@ -80,7 +56,7 @@ func (g *gpt) filedContent(content string) string {
 	return answer
 }
 
-func (g *gpt) AskGptStream(content string) string {
+func AskGptStream(content string) string {
 	req := gogpt.CompletionRequest{
 		Model:            gogpt.GPT3TextDavinci003,
 		Temperature:      0,
@@ -92,7 +68,7 @@ func (g *gpt) AskGptStream(content string) string {
 		Prompt:           content,
 		Stream:           true,
 	}
-	stream, err := g.client.CreateCompletionStream(g.ctx, req)
+	stream, err := openAiIns.client.CreateCompletionStream(openAiIns.ctx, req)
 	if err != nil {
 		fmt.Printf("CreateCompletionStream Err %v\n", err)
 		return ""

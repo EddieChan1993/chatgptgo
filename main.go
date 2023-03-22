@@ -1,7 +1,6 @@
 package main
 
 import (
-	"chatgptgo/core"
 	"chatgptgo/gpt"
 	goRuntime "chatgptgo/util"
 	"os"
@@ -13,10 +12,12 @@ func init() {
 	yeheiTTF := "/Users/duanchengwen/go/bin/font/yahei.ttf"
 	os.Setenv("FYNE_FONT", yeheiTTF)
 }
+
 func main() {
 	goRuntime.InitGoRuntime()
-	gpt.InitGpt()
-	core.InitGui()
+	gpt.InitOpenAi()
+	gpt.CreateImgUrl("海边的落日，eric clapton站在悬崖边上，弹奏着fender电吉他，画面风格是梵高风格")
+	//core.InitGui()
 	//core.InitConsole()
 	//core.InitWxChat()
 }

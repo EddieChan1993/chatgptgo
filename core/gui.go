@@ -40,7 +40,7 @@ func InitGui() {
 				msg.WriteString("\n" + ask)
 			}
 			label.SetText(msg.String() + "\n   ....正在思考....")
-			answer := gpt.GptApi.AskGpt(gpt.GetAskContent(ask))
+			answer := gpt.AskGpt(gpt.GetAskContent(ask))
 			msg.WriteString("\n" + answer)
 			msg.WriteString("\n---------------------------------------------------------")
 			label.SetText(msg.String())
