@@ -56,13 +56,12 @@ func InitGui() {
 			if imageUrl == "" {
 				return
 			}
+			//fmt.Println(imageUrl)
 			url, _ := storage.ParseURI(imageUrl)
 			w := fyne.CurrentApp().NewWindow("图片")
-			card2 := widget.NewCard("", input.Text, nil)
-			card2.Image = canvas.NewImageFromURI(url)
-			w.SetContent(container.NewCenter(card2))
-			w.Resize(fyne.NewSize(300, 300))
-			w.SetFixedSize(true)
+			w.SetContent(canvas.NewImageFromURI(url))
+			w.Resize(fyne.NewSize(500, 500))
+			//w.SetFixedSize(true)
 			w.Show()
 		}()
 	})
