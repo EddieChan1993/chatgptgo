@@ -4,14 +4,17 @@ import (
 	"chatgptgo/core"
 	"chatgptgo/openai"
 	goRuntime "chatgptgo/util"
+	_ "embed"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
+//go:embed ttfPath
+var ttfPath string
+
 func init() {
-	yeheiTTF := "/Users/duanchengwen/go/bin/font/yahei.ttf"
-	os.Setenv("FYNE_FONT", yeheiTTF)
+	os.Setenv("FYNE_FONT", ttfPath)
 }
 
 func main() {
