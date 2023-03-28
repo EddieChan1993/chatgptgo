@@ -13,7 +13,7 @@ import (
 /**
 图片内容生成
 */
-func CreateImgUrl(content string) string {
+func CreateImgUrl(content string) (string, error) {
 	// Sample image by link
 	reqUrl := gogpt.ImageRequest{
 		Prompt:         content,
@@ -25,9 +25,9 @@ func CreateImgUrl(content string) string {
 	respUrl, err := openAiIns.client.CreateImage(openAiIns.ctx, reqUrl)
 	if err != nil {
 		fmt.Printf("Image creation error: %v\n", err)
-		return ""
+		return "", err
 	}
-	return respUrl.Data[0].URL
+	return respUrl.Data[0].URL, nil
 }
 
 func CreateImgPng(content string) {

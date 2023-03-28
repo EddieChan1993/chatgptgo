@@ -25,7 +25,7 @@ func InitConsole() {
 					continue
 				}
 				msg := openai.GetAskContent(ask)
-				answer := openai.AskGpt(msg)
+				answer, _ := openai.AskGpt(msg)
 				fmt.Printf("%s\n", answer)
 				fmt.Println("-----------------------")
 			}

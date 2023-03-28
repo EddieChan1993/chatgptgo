@@ -17,7 +17,7 @@ var builderAsk strings.Builder
 
 const Ai = "AI:"
 
-func AskGpt(content string) string {
+func AskGpt(content string) (string, error) {
 	resp, err := openAiIns.openAiClient.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
@@ -33,10 +33,10 @@ func AskGpt(content string) string {
 	)
 	if err != nil {
 		fmt.Printf("ChatCompletion error: %v\n", err)
-		return ""
+		return "", err
 	}
 	data := resp.Choices[0].Message.Content
-	return filedContent(data)
+	return filedContent(data), nil
 }
 
 func filedContent(content string) string {

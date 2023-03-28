@@ -63,7 +63,7 @@ func (w *wxChat) listMsg() func(msg *openwechat.Message) {
 			content := strings.TrimSpace(msg.Content)
 			fmt.Println("msg", content)
 			goRuntime.GoRun(func(ctx context.Context) {
-				resp := openai.AskGpt(content)
+				resp, _ := openai.AskGpt(content)
 				//_, err := msg.ReplyText(resp)
 				fmt.Println("AIBOT:", resp)
 				//if err != nil {

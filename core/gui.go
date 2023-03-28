@@ -2,6 +2,7 @@ package core
 
 import (
 	"chatgptgo/openai"
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
@@ -65,7 +66,10 @@ func (this_ *gui) show() {
 			}
 			label.SetText(this_.msg.String())
 			this_.infinite.Show()
-			answer := openai.AskGpt(openai.GetAskContent(ask))
+			answer, err := openai.AskGpt(openai.GetAskContent(ask))
+			if err != nil {
+				answer = fmt.Sprintf("GPT ERROR %v", err)
+			}
 			this_.msg.WriteString("\n" + answer)
 			this_.msg.WriteString("\n---------------------------------------------------------")
 			this_.infinite.Hide()
@@ -78,18 +82,23 @@ func (this_ *gui) show() {
 		}
 		go func() {
 			this_.infinite.Show()
-			imageUrl := openai.CreateImgUrl(input.Text)
-			if imageUrl == "" {
-				return
+			imageUrl, err := openai.CreateImgUrl(input.Text)
+			if imageUrl != "" {
+				//fmt.Println(imageUrl)
+				url, _ := storage.ParseURI(imageUrl)
+				w := fyne.CurrentApp().NewWindow("图片")
+				w.SetContent(canvas.NewImageFromURI(url))
+				w.Resize(fyne.NewSize(500, 500))
+				//w.SetFixedSize(true)
+				w.Show()
 			}
-			//fmt.Println(imageUrl)
-			url, _ := storage.ParseURI(imageUrl)
-			w := fyne.CurrentApp().NewWindow("图片")
-			w.SetContent(canvas.NewImageFromURI(url))
-			w.Resize(fyne.NewSize(500, 500))
-			//w.SetFixedSize(true)
+			if err != nil {
+				answer := fmt.Sprintf("CreateIMG ERROR %v", err)
+				this_.msg.WriteString("\n" + answer)
+				this_.msg.WriteString("\n---------------------------------------------------------")
+				label.SetText(this_.msg.String())
+			}
 			this_.infinite.Hide()
-			w.Show()
 		}()
 	}
 	//布局
