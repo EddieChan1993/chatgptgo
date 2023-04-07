@@ -43,11 +43,6 @@ func filedContent(content string) string {
 	answer = strings.Trim(answer, "Robot:")
 	answer = strings.Trim(answer, "Computer:")
 	answer = strings.Trim(answer, "回答：")
-	if strings.Index(answer, Ai) == -1 {
-		builderAsk.WriteString("\n" + Ai + answer)
-	} else {
-		builderAsk.WriteString("\n" + answer)
-	}
 	return answer
 }
 
@@ -82,7 +77,8 @@ func AskGptStream(content string, fn func(answer string, err error)) {
 		}
 		answerRsp := response.Choices
 		if len(answerRsp) != 0 {
-			fn(filedContent(answerRsp[0].Delta.Content), nil)
+			builderAsk.WriteString(answerRsp[0].Delta.Content)
+			fn(answerRsp[0].Delta.Content, nil)
 		}
 	}
 	return
