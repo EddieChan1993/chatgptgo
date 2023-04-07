@@ -5,7 +5,6 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
-	gogpt "github.com/sashabaranov/go-gpt3"
 	"github.com/sashabaranov/go-openai"
 	"io"
 	"strings"
@@ -21,7 +20,7 @@ func AskGpt(content string) (string, error) {
 	resp, err := openAiIns.openAiClient.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: openai.GPT432K0314,
+			Model: openai.GPT3Dot5Turbo0301,
 			Stop:  []string{"Human:", " " + Ai}, //连续发问的标志词
 			Messages: []openai.ChatCompletionMessage{
 				{
@@ -40,41 +39,37 @@ func AskGpt(content string) (string, error) {
 }
 
 func filedContent(content string) string {
-	answer := strings.TrimSpace(content)
-	answer = strings.Trim(answer, "\n")
-	answer = strings.TrimSpace(answer)
-	answer = strings.Trim(answer, "Bot:")
+	answer := strings.Trim(content, "Bot:")
 	answer = strings.Trim(answer, "Robot:")
 	answer = strings.Trim(answer, "Computer:")
 	answer = strings.Trim(answer, "回答：")
 	if strings.Index(answer, Ai) == -1 {
 		builderAsk.WriteString("\n" + Ai + answer)
-		answer = Ai + answer
 	} else {
 		builderAsk.WriteString("\n" + answer)
 	}
 	return answer
 }
 
-func AskGptStream(content string) string {
-	req := gogpt.CompletionRequest{
-		Model:            gogpt.GPT3TextDavinci003,
-		Temperature:      0,
-		MaxTokens:        1000,
-		TopP:             1,
-		FrequencyPenalty: 0,
-		PresencePenalty:  0,
-		BestOf:           1,
-		Prompt:           content,
-		Stream:           true,
+func AskGptStream(content string, fn func(answer string, err error)) {
+	req := openai.ChatCompletionRequest{
+		Model:  openai.GPT3Dot5Turbo0301,
+		Stop:   []string{"Human:", " " + Ai}, //连续发问的标志词
+		Stream: true,
+		Messages: []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: content,
+			},
+		},
 	}
-	stream, err := openAiIns.client.CreateCompletionStream(openAiIns.ctx, req)
+	stream, err := openAiIns.openAiClient.CreateChatCompletionStream(openAiIns.ctx, req)
 	if err != nil {
 		fmt.Printf("CreateCompletionStream Err %v\n", err)
-		return ""
+		fn("", err)
+		return
 	}
 	defer stream.Close()
-	var builder strings.Builder
 	for {
 		response, err := stream.Recv()
 		if errors.Is(err, io.EOF) {
@@ -82,13 +77,15 @@ func AskGptStream(content string) string {
 		}
 		if err != nil {
 			fmt.Printf("Stream Err %v\n", err)
+			fn("", err)
+			break
 		}
-		if len(response.Choices) != 0 {
-			_, _ = builder.WriteString(response.Choices[0].Text)
+		answerRsp := response.Choices
+		if len(answerRsp) != 0 {
+			fn(filedContent(answerRsp[0].Delta.Content), nil)
 		}
-		//fmt.Printf("Stream response: %v\n", response)
 	}
-	return strings.TrimSpace(builder.String())
+	return
 }
 
 func GetAskContent(ask string) string {

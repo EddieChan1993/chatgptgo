@@ -66,13 +66,17 @@ func (this_ *gui) show() {
 			}
 			label.SetText(this_.msg.String())
 			this_.infinite.Show()
-			answer, err := openai.AskGpt(openai.GetAskContent(ask))
-			if err != nil {
-				answer = fmt.Sprintf("GPT ERROR %v", err)
-			}
-			this_.msg.WriteString("\n" + answer)
-			this_.msg.WriteString("\n---------------------------------------------------------")
+			this_.msg.WriteString("\n" + openai.Ai)
+			openai.AskGptStream(openai.GetAskContent(ask), func(answer string, err error) {
+				if err != nil {
+					answer = fmt.Sprintf("GPT ERROR %v", err)
+					return
+				}
+				this_.msg.WriteString(answer)
+				label.SetText(this_.msg.String())
+			})
 			this_.infinite.Hide()
+			this_.msg.WriteString("\n---------------------------------------------------------")
 			label.SetText(this_.msg.String())
 		}()
 	}
