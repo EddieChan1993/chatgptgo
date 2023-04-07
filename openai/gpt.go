@@ -21,7 +21,7 @@ func AskGpt(content string) (string, error) {
 	resp, err := openAiIns.openAiClient.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: openai.GPT3Dot5Turbo0301,
+			Model: openai.GPT432K0314,
 			Stop:  []string{"Human:", " " + Ai}, //连续发问的标志词
 			Messages: []openai.ChatCompletionMessage{
 				{
