@@ -70,13 +70,17 @@ func (this_ *gui) show() {
 
 func (this_ *gui) isLockBtn() {
 	go func() {
+		isEnable := true
 		for {
-			if this_.infinite.Visible() == false {
+			if !this_.infinite.Visible() && !isEnable {
 				this_.createImgBtn.Enable()
 				this_.submitBtn.Enable()
-			} else {
+				isEnable = true
+			}
+			if this_.infinite.Visible() && isEnable {
 				this_.createImgBtn.Disable()
 				this_.submitBtn.Disable()
+				isEnable = false
 			}
 		}
 	}()
