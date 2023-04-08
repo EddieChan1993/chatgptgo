@@ -8,6 +8,7 @@ import (
 	"github.com/sashabaranov/go-openai"
 	"io"
 	"strings"
+	"time"
 )
 
 //go:embed token
@@ -38,15 +39,37 @@ func AskGpt(content string) (string, error) {
 	return filedContent(data), nil
 }
 
-func filedContent(content string) string {
-	answer := strings.Trim(content, "Bot:")
-	answer = strings.Trim(answer, "Robot:")
-	answer = strings.Trim(answer, "Computer:")
-	answer = strings.Trim(answer, "回答：")
-	return answer
+func AskGptStream(content string, fn func(answer string, err error)) {
+	var resCh chan openai.ChatCompletionStreamResponse
+	stream, err := callStream(resCh, content)
+	if err != nil {
+		fn("", err)
+		return
+	}
+	ticker := time.NewTicker(30 * time.Second)
+	defer func() {
+		stream.Close()
+		ticker.Stop()
+	}()
+	builderAsk.WriteString("\n" + Ai)
+	for {
+		select {
+		case <-ticker.C:
+			fn("", fmt.Errorf("响应超时"))
+			return
+		case response := <-resCh:
+			ticker.Reset(10 * time.Second)
+			answerRsp := response.Choices
+			if len(answerRsp) != 0 {
+				builderAsk.WriteString(answerRsp[0].Delta.Content)
+				fmt.Print(answerRsp[0].Delta.Content)
+				fn(answerRsp[0].Delta.Content, nil)
+			}
+		}
+	}
 }
 
-func AskGptStream(content string, fn func(answer string, err error)) {
+func callStream(resCh chan openai.ChatCompletionStreamResponse, content string) (stream *openai.ChatCompletionStream, err error) {
 	req := openai.ChatCompletionRequest{
 		Model:  openai.GPT3Dot5Turbo0301,
 		Stop:   []string{"Human:", " " + Ai}, //连续发问的标志词
@@ -58,30 +81,25 @@ func AskGptStream(content string, fn func(answer string, err error)) {
 			},
 		},
 	}
-	stream, err := openAiIns.openAiClient.CreateChatCompletionStream(openAiIns.ctx, req)
+	stream, err = openAiIns.openAiClient.CreateChatCompletionStream(openAiIns.ctx, req)
 	if err != nil {
 		fmt.Printf("CreateCompletionStream Err %v\n", err)
-		fn("", err)
-		return
+		return nil, err
 	}
-	defer stream.Close()
-	for {
-		response, err := stream.Recv()
-		if errors.Is(err, io.EOF) {
-			break
+	go func() {
+		for {
+			response, err := stream.Recv()
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				fmt.Printf("Stream Err %v\n", err)
+				break
+			}
+			resCh <- response
 		}
-		if err != nil {
-			fmt.Printf("Stream Err %v\n", err)
-			fn("", err)
-			break
-		}
-		answerRsp := response.Choices
-		if len(answerRsp) != 0 {
-			builderAsk.WriteString(answerRsp[0].Delta.Content)
-			fn(answerRsp[0].Delta.Content, nil)
-		}
-	}
-	return
+	}()
+	return stream, err
 }
 
 func GetAskContent(ask string) string {
@@ -92,4 +110,12 @@ func GetAskContent(ask string) string {
 
 func ClearAsk() {
 	builderAsk.Reset()
+}
+
+func filedContent(content string) string {
+	answer := strings.Trim(content, "Bot:")
+	answer = strings.Trim(answer, "Robot:")
+	answer = strings.Trim(answer, "Computer:")
+	answer = strings.Trim(answer, "回答：")
+	return answer
 }

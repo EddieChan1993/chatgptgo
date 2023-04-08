@@ -66,16 +66,17 @@ func (this_ *gui) show() {
 			}
 			label.SetText(this_.msg.String())
 			this_.infinite.Show()
-			this_.msg.WriteString("\n" + openai.Ai)
 			cron := 0 //间隔显示
+			this_.msg.WriteString("\n")
 			openai.AskGptStream(openai.GetAskContent(ask), func(answer string, err error) {
 				if err != nil {
 					answer = fmt.Sprintf("GPT ERROR %v", err)
+					this_.msg.WriteString(answer)
 					return
 				}
 				this_.msg.WriteString(answer)
 				cron++
-				if cron%3 == 0 {
+				if cron%2 == 0 {
 					label.SetText(this_.msg.String())
 				}
 			})
