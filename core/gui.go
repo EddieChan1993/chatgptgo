@@ -66,7 +66,6 @@ func (this_ *gui) show() {
 			}
 			label.SetText(this_.msg.String())
 			this_.infinite.Show()
-			cron := 0 //间隔显示
 			this_.msg.WriteString("\n")
 			openai.AskGptStream(openai.GetAskContent(ask), func(answer string, err error) {
 				if err != nil {
@@ -75,10 +74,7 @@ func (this_ *gui) show() {
 					return
 				}
 				this_.msg.WriteString(answer)
-				cron++
-				if cron%2 == 0 {
-					label.SetText(this_.msg.String())
-				}
+				label.SetText(this_.msg.String())
 			})
 			this_.infinite.Hide()
 			this_.msg.WriteString("\n---------------------------------------------------------")

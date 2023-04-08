@@ -40,16 +40,20 @@ func AskGpt(content string) (string, error) {
 }
 
 func AskGptStream(content string, fn func(answer string, err error)) {
-	var resCh chan openai.ChatCompletionStreamResponse
-	stream, err := callStream(resCh, content)
+	resCh := make(chan openai.ChatCompletionStreamResponse)
+	errCh := make(chan error)
+	stream, err := callStream(errCh, resCh, content)
 	if err != nil {
 		fn("", err)
 		return
 	}
-	ticker := time.NewTicker(30 * time.Second)
+	wait := 30 * time.Second
+	ticker := time.NewTicker(wait)
 	defer func() {
 		stream.Close()
 		ticker.Stop()
+		close(resCh)
+		close(errCh)
 	}()
 	builderAsk.WriteString("\n" + Ai)
 	for {
@@ -57,9 +61,14 @@ func AskGptStream(content string, fn func(answer string, err error)) {
 		case <-ticker.C:
 			fn("", fmt.Errorf("响应超时"))
 			return
-		case response := <-resCh:
-			ticker.Reset(10 * time.Second)
-			answerRsp := response.Choices
+		case errRes := <-errCh:
+			fn("", errRes)
+		case answerRes := <-resCh:
+			if answerRes.ID == "Ok" {
+				return
+			}
+			ticker.Reset(wait)
+			answerRsp := answerRes.Choices
 			if len(answerRsp) != 0 {
 				builderAsk.WriteString(answerRsp[0].Delta.Content)
 				fmt.Print(answerRsp[0].Delta.Content)
@@ -69,7 +78,7 @@ func AskGptStream(content string, fn func(answer string, err error)) {
 	}
 }
 
-func callStream(resCh chan openai.ChatCompletionStreamResponse, content string) (stream *openai.ChatCompletionStream, err error) {
+func callStream(errCh chan error, resCh chan openai.ChatCompletionStreamResponse, content string) (stream *openai.ChatCompletionStream, err error) {
 	req := openai.ChatCompletionRequest{
 		Model:  openai.GPT3Dot5Turbo0301,
 		Stop:   []string{"Human:", " " + Ai}, //连续发问的标志词
@@ -90,10 +99,14 @@ func callStream(resCh chan openai.ChatCompletionStreamResponse, content string) 
 		for {
 			response, err := stream.Recv()
 			if errors.Is(err, io.EOF) {
+				resCh <- openai.ChatCompletionStreamResponse{
+					ID: "Ok",
+				}
 				break
 			}
 			if err != nil {
 				fmt.Printf("Stream Err %v\n", err)
+				errCh <- err
 				break
 			}
 			resCh <- response
