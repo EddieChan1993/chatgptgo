@@ -52,8 +52,6 @@ func AskGptStream(content string, fn func(answer string, err error)) {
 	defer func() {
 		stream.Close()
 		ticker.Stop()
-		close(resCh)
-		close(errCh)
 	}()
 	builderAsk.WriteString("\n" + Ai)
 	for {
@@ -71,7 +69,6 @@ func AskGptStream(content string, fn func(answer string, err error)) {
 			answerRsp := answerRes.Choices
 			if len(answerRsp) != 0 {
 				builderAsk.WriteString(answerRsp[0].Delta.Content)
-				fmt.Print(answerRsp[0].Delta.Content)
 				fn(answerRsp[0].Delta.Content, nil)
 			}
 		}

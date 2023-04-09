@@ -31,7 +31,7 @@ func InitGui() {
 	createBtn := widget.NewButton("AI图片生成", nil)
 	//内容展示
 	label := widget.NewMultiLineEntry()
-	label.Wrapping = fyne.TextWrapBreak //文字自动换行
+	label.Wrapping = fyne.TextWrapWord //文字自动换行
 	//输入input
 	input := widget.NewEntry()
 	input.SetPlaceHolder("输入问题/图片内容描述")
@@ -97,7 +97,7 @@ func (this_ *gui) initSubmitBtn() {
 			} else {
 				this_.msg.WriteString("\n" + ask)
 			}
-			this_.content.SetText(this_.msg.String())
+			this_.setText(this_.msg.String())
 			this_.infinite.Show()
 			this_.msg.WriteString("\n")
 			openai.AskGptStream(openai.GetAskContent(ask), func(answer string, err error) {
@@ -107,11 +107,11 @@ func (this_ *gui) initSubmitBtn() {
 					return
 				}
 				this_.msg.WriteString(answer)
-				this_.content.SetText(this_.msg.String())
+				this_.setText(this_.msg.String())
 			})
 			this_.infinite.Hide()
 			this_.msg.WriteString("\n---------------------------------------------------------")
-			this_.content.SetText(this_.msg.String())
+			this_.setText(this_.msg.String())
 		}()
 	}
 }
@@ -137,7 +137,7 @@ func (this_ *gui) initCreateImgBtn() {
 				answer := fmt.Sprintf("CreateIMG ERROR %v", err)
 				this_.msg.WriteString("\n" + answer)
 				this_.msg.WriteString("\n---------------------------------------------------------")
-				this_.content.SetText(this_.msg.String())
+				this_.setText(this_.msg.String())
 			}
 			this_.infinite.Hide()
 		}()
@@ -146,9 +146,14 @@ func (this_ *gui) initCreateImgBtn() {
 
 func (this_ *gui) initCleanBtn() {
 	this_.cleanBtn.OnTapped = func() {
-		this_.content.SetText("")
+		this_.setText("")
 		this_.content.Refresh()
 		openai.ClearAsk()
 		this_.msg.Reset()
 	}
+}
+
+func (this_ *gui) setText(content string) {
+	this_.content.SetText(content)
+	this_.content.DragEnd()
 }
