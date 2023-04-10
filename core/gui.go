@@ -18,6 +18,7 @@ type gui struct {
 	content, input                    *widget.Entry
 	msg                               *strings.Builder
 	app                               fyne.App
+	charNums                          int
 }
 
 func InitGui() {
@@ -150,9 +151,12 @@ func (this_ *gui) initCleanBtn() {
 		this_.content.Refresh()
 		openai.ClearAsk()
 		this_.msg.Reset()
+		this_.charNums = 0
 	}
 }
 
 func (this_ *gui) setText(content string) {
 	this_.content.SetText(content)
+	this_.charNums++
+	this_.content.CursorRow = this_.charNums
 }
