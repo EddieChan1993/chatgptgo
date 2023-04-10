@@ -155,5 +155,4 @@ func (this_ *gui) initCleanBtn() {
 
 func (this_ *gui) setText(content string) {
 	this_.content.SetText(content)
-	this_.content.DragEnd()
 }
