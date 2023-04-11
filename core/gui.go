@@ -67,7 +67,12 @@ func (this_ *gui) show() {
 	myWindow.Resize(fyne.NewSize(600, 700))
 	myWindow.SetFixedSize(true)
 	myWindow.Show()
+	this_.app.Lifecycle().SetOnStopped(func() {
+		this_.clearData()
+		fmt.Println("数据释放完成")
+	})
 	this_.app.Run()
+
 }
 
 func (this_ *gui) isLockBtn() {
@@ -150,10 +155,14 @@ func (this_ *gui) initCleanBtn() {
 	this_.cleanBtn.OnTapped = func() {
 		this_.setText("")
 		this_.content.Refresh()
-		openai.ClearAsk()
-		this_.msg.Reset()
-		this_.charNums = 0
+		this_.clearData()
 	}
+}
+
+func (this_ *gui) clearData() {
+	openai.ClearAsk()
+	this_.msg.Reset()
+	this_.charNums = 0
 }
 
 func (this_ *gui) setText(content string) {
