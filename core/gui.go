@@ -143,7 +143,7 @@ func (this_ *gui) initCreateImgBtn() {
 			if err != nil {
 				answer := fmt.Sprintf("CreateIMG ERROR %v", err)
 				this_.msg.WriteString("\n" + answer)
-				this_.msg.WriteString("\n---------------------------------------------------------")
+				this_.msg.WriteString("-----------------------------------------------------------------------------------------------------")
 				this_.setText(this_.msg.String())
 			}
 			this_.infinite.Hide()
