@@ -34,8 +34,9 @@ func InitGui() {
 	label := widget.NewMultiLineEntry()
 	label.Wrapping = fyne.TextWrapWord //文字自动换行
 	//输入input
-	input := widget.NewEntry()
+	input := widget.NewMultiLineEntry()
 	input.SetPlaceHolder("输入问题/图片内容描述")
+	input.Wrapping = fyne.TextWrapWord //文字自动换行
 	//清空按钮
 	clearBtn := widget.NewButton("清空", nil)
 	ins := &gui{
@@ -63,7 +64,7 @@ func (this_ *gui) show() {
 	border := container.NewBorder(content, this_.infinite, nil, nil, this_.content)
 
 	myWindow.SetContent(border)
-	myWindow.Resize(fyne.NewSize(600, 600))
+	myWindow.Resize(fyne.NewSize(600, 700))
 	myWindow.SetFixedSize(true)
 	myWindow.Show()
 	this_.app.Run()
