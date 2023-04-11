@@ -12,6 +12,8 @@ import (
 	"strings"
 )
 
+const lineStr = `-----------------------------------------------------------------------------------------------------`
+
 type gui struct {
 	infinite                          *widget.ProgressBarInfinite
 	createImgBtn, submitBtn, cleanBtn *widget.Button
@@ -117,7 +119,7 @@ func (this_ *gui) initSubmitBtn() {
 				this_.setText(this_.msg.String())
 			})
 			this_.infinite.Hide()
-			this_.msg.WriteString("\n---------------------------------------------------------")
+			this_.msg.WriteString(lineStr)
 			this_.setText(this_.msg.String())
 		}()
 	}
@@ -139,11 +141,12 @@ func (this_ *gui) initCreateImgBtn() {
 				w.Resize(fyne.NewSize(500, 500))
 				//w.SetFixedSize(true)
 				w.Show()
+				this_.setText(imageUrl)
 			}
 			if err != nil {
 				answer := fmt.Sprintf("CreateIMG ERROR %v", err)
 				this_.msg.WriteString("\n" + answer)
-				this_.msg.WriteString("-----------------------------------------------------------------------------------------------------")
+				this_.msg.WriteString(lineStr)
 				this_.setText(this_.msg.String())
 			}
 			this_.infinite.Hide()
