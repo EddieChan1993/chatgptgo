@@ -6,7 +6,7 @@ require (
 	fyne.io/fyne/v2 v2.3.3
 	github.com/eatmoreapple/openwechat v1.4.0
 	github.com/sashabaranov/go-gpt3 v1.1.0
-	github.com/sashabaranov/go-openai v1.6.1
+	github.com/sashabaranov/go-openai v1.7.0
 )
 
 require (
