@@ -99,6 +99,7 @@ func (this_ *gui) initSubmitBtn() {
 	this_.submitBtn.OnTapped = func() {
 		go func() {
 			ask := "我:" + this_.input.Text
+			this_.charNums += len(ask) //字数统计
 			oldContent := this_.msg.String()
 			if oldContent == "" {
 				//第一次
