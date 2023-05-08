@@ -99,7 +99,7 @@ func (this_ *gui) initSubmitBtn() {
 	this_.submitBtn.OnTapped = func() {
 		go func() {
 			ask := "我:" + this_.input.Text
-			this_.charNums += len(ask) //字数统计
+			this_.updateCursor(len(ask))
 			oldContent := this_.msg.String()
 			if oldContent == "" {
 				//第一次
@@ -171,6 +171,10 @@ func (this_ *gui) clearData() {
 
 func (this_ *gui) setText(content string) {
 	this_.content.SetText(content)
-	this_.charNums++
+	this_.updateCursor(1)
+}
+
+func (this_ *gui) updateCursor(num int) {
+	this_.charNums += num
 	this_.content.CursorRow = this_.charNums
 }
